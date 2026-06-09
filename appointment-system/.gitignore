@@ -1,0 +1,26 @@
+# IDE and local settings
+.idea/
+*.iml
+*.ipr
+*.iws
+local.properties
+
+# Java and Tomcat generated files
+*.class
+**/out/
+**/logs/
+**/temp/
+**/work/
+**/webapps/
+**/.smarttomcat/
+
+# Android and Gradle generated files
+**/.gradle/
+**/build/
+**/captures/
+**/.externalNativeBuild/
+**/.cxx/
+
+# Operating system files
+.DS_Store
+Thumbs.db
