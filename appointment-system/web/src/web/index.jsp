@@ -5,6 +5,18 @@
     <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
+<!-- 识别“因权限不足而被跳转回来”，然后弹出警告 -->
+<%boolean accessDenied = "true".equals(request.getParameter("accessDenied"));%>
+<% if (accessDenied) { %>
+<script>
+    alert("您未有访问权限");
+    window.history.replaceState(
+        null,
+        "",
+        "<%= request.getContextPath() %>/index.jsp");
+</script>
+<% } %>
+
 <div class="app-container">
     <div class="logo-wrap">
         <img src="/images/1.png" width = "25%" >

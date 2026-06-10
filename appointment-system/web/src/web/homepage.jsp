@@ -1,12 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="entity.User" %>
 
-<%
-    User loginUser =
-            (User)session.getAttribute(
-                    "loginUser"
-            );
-%>
 <html>
 <head>
     <title>首页-多功能预约系统</title>
@@ -16,7 +9,7 @@
 <body>
     <h3 class="title">
         <span>
-            欢迎您：<%= loginUser.getUsername() %>
+            欢迎您：${loginUser.username}
         </span>
 
         <a href="/logout" class="title-a">
