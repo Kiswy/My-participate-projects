@@ -8,6 +8,16 @@ body {
     background: #f0f7ff;
     min-height: 100vh;
     }
+.title{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    }
+.title-a{
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+    }
 .app-container {
     max-width: 1400px;
     margin: 0 auto;

@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet("/login")
@@ -28,6 +29,14 @@ public class LoginServlet extends HttpServlet {
         );
 
         if (user != null) {
+            HttpSession session =
+                    request.getSession();
+
+            session.setAttribute(
+                    "loginUser",
+                    user
+            );
+
             if ("管理员".equals(user.getRole())) {
                 response.sendRedirect(
                         "homepage_Max.jsp"
