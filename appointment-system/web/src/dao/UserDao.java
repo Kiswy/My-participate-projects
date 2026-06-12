@@ -9,13 +9,11 @@ import java.sql.ResultSet;
 
 public class UserDao {
     public User login(String username, String password) {
-
         User user = null;
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
 
         try {
             Connection conn = DBUtil.getConnection();
-
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ps.setString(1, username);
@@ -25,7 +23,6 @@ public class UserDao {
 
             if (rs.next()) {
                 user = new User();
-
                 user.setId(rs.getInt("id"));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password"));

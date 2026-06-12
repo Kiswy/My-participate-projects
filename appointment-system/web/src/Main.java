@@ -1,21 +1,27 @@
-import dao.UserDao;
+import dao.CategoryDao;
+import entity.Category;
+
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        UserDao userDao =
-                new UserDao();
+        CategoryDao dao =
+                new CategoryDao();
 
-        boolean success =
-                userDao.register(
-                        "wangwu",
-                        "123456",
-                        "13800000003"
-                );
+        List<Category> list =
+                dao.getAllCategories();
 
-        System.out.println(success);
+        for(Category category : list){
+
+            System.out.println(
+                    category.getId()
+                    + " - "
+                    + category.getCategoryName()
+            );
+
+        }
 
     }
-
 }
