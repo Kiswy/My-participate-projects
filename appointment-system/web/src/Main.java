@@ -1,5 +1,5 @@
-import dao.CategoryDao;
-import entity.Category;
+import dao.ProjectDao;
+import entity.Project;
 
 import java.util.List;
 
@@ -7,18 +7,20 @@ public class Main {
 
     public static void main(String[] args) {
 
-        CategoryDao dao =
-                new CategoryDao();
+        ProjectDao dao =
+                new ProjectDao();
 
-        List<Category> list =
-                dao.getAllCategories();
+        List<Project> list =
+                dao.getProjectsByCategory(1);
 
-        for(Category category : list){
+        for(Project project : list){
 
             System.out.println(
-                    category.getId()
-                    + " - "
-                    + category.getCategoryName()
+                    project.getProjectName()
+                    + " | "
+                    + project.getLocation()
+                    + " | "
+                    + project.getAppointmentTime()
             );
 
         }
