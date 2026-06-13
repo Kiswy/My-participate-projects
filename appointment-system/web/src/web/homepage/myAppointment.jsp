@@ -11,7 +11,11 @@
                 <br>
                 <small>预约码：{{ rc.code }} | {{ rc.name }}</small>
             </div>
-            <button class="btn-cancel">取消预约</button>
+            <button
+                class="btn-cancel"
+                @click="cancelReservation(rc.id)">
+                取消预约
+            </button>
         </div>
     </div>
 </div>

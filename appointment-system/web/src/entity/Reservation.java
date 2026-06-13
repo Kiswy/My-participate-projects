@@ -4,6 +4,7 @@ public class Reservation {
     private Integer id;
     private Integer userId;
     private Integer projectId;
+    private String projectName;
     private String reservationCode;
     private String reserveTime;
     private String status;
@@ -31,6 +32,10 @@ public class Reservation {
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
+
+    public String getProjectName() { return projectName; }
+
+    public void setProjectName(String projectName) { this.projectName = projectName; }
 
     public String getReservationCode() {
         return reservationCode;

@@ -90,9 +90,13 @@ public class ReservationDao {
         List<Reservation> list = new ArrayList<>();
 
         String sql =
-                "SELECT * " +
-                        "FROM reservations " +
-                        "WHERE user_id = ?";
+                "SELECT " +
+                        "r.*, " +
+                        "p.project_name " +
+                        "FROM reservations r " +
+                        "JOIN projects p " +
+                        "ON r.project_id = p.id " +
+                        "WHERE r.user_id = ?";
 
         try {
             Connection conn = DBUtil.getConnection();
@@ -110,9 +114,7 @@ public class ReservationDao {
                 );
 
                 reservation.setReservationCode(
-                        rs.getString(
-                                "reservation_code"
-                        )
+                        rs.getString("reservation_code")
                 );
 
                 reservation.setUserId(
@@ -123,16 +125,16 @@ public class ReservationDao {
                         rs.getInt("project_id")
                 );
 
+                reservation.setProjectName(
+                        rs.getString("project_name")
+                );
+
                 reservation.setReserveTime(
-                        rs.getString(
-                                "reserve_time"
-                        )
+                        rs.getString("reserve_time")
                 );
 
                 reservation.setStatus(
-                        rs.getString(
-                                "status"
-                        )
+                        rs.getString("status")
                 );
 
                 list.add(
@@ -149,5 +151,97 @@ public class ReservationDao {
         }
 
         return list;
+    }
+
+    // 根据ID查询预约记录
+    public Reservation getReservationById(
+            Integer reservationId
+    ) {
+        String sql =
+                "SELECT * " +
+                        "FROM reservations " +
+                        "WHERE id = ?";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, reservationId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Reservation reservation = new Reservation();
+
+                reservation.setId(
+                        rs.getInt("id")
+                );
+
+                reservation.setReservationCode(
+                        rs.getString("reservation_code")
+                );
+
+                reservation.setUserId(
+                        rs.getInt("user_id")
+                );
+
+                reservation.setProjectId(
+                        rs.getInt("project_id")
+                );
+
+                reservation.setReserveTime(
+                        rs.getString("reserve_time")
+                );
+
+                reservation.setStatus(
+                        rs.getString("status")
+                );
+
+                rs.close();
+                ps.close();
+                conn.close();
+
+                return reservation;
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+
+    // 取消预约
+    public boolean cancelReservation(
+            Integer reservationId) {
+        String sql =
+                "UPDATE reservations " +
+                        "SET status = '已取消' " +
+                        "WHERE id = ?";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, reservationId);
+
+            int rows = ps.executeUpdate();
+
+            ps.close();
+            conn.close();
+
+            return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

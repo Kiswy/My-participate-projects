@@ -6,22 +6,18 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-
         ReservationDao dao =
                 new ReservationDao();
 
         List<Reservation> list =
-                dao.getReservationsByUserId(
-                        1
-                );
+                dao.getReservationsByUserId(1);
 
-        for (Reservation reservation : list) {
+boolean result =
+        dao.cancelReservation(
+                1
+        );
 
-            System.out.println(
-                    reservation.getReservationCode()
-            );
-
-        }
+System.out.println(result);
 
     }
 

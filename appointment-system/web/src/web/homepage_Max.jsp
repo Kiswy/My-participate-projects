@@ -81,8 +81,15 @@
 
                 // 预约大厅数据
                 const serviceCategories = ref([]);
+
+                // 我的预约数据
+                const reservationCards = ref([]);
+
                 onMounted(async () => {
                     try {
+                        // ====================
+                        // 加载预约大厅
+                        // ====================
                         const categoryResponse = await fetch('/categories');
                         const categories = await categoryResponse.json();
                         const result = [];
@@ -111,6 +118,22 @@
                         }
 
                         serviceCategories.value = result;
+
+                        // ====================
+                        // 加载我的预约
+                        // ====================
+                        const reservationResponse = await fetch('/reservation');
+                        const reservations = await reservationResponse.json();
+
+                        reservationCards.value =
+                            reservations.map(r => ({
+                                id: r.id,
+                                title: r.projectName,
+                                code: r.reservationCode,
+                                name: r.status
+                            })
+                        );
+
                     } catch (e) {
                         console.error('加载预约大厅失败', e);
                     }
@@ -136,11 +159,46 @@
                     }
                 }
 
-                // 我的预约数据
-                const reservationCards = ref([
-                    { id: 1, title: '图书馆·自习室', code: 'ZXS12LH', name: '李华' },
-                    { id: 2, title: 'AI前沿讲座：大模型时代', code: 'JZ123LH', name: '李华' }
-                ]);
+                // 取消预约
+                async function cancelReservation( reservationId ) {
+                    try {
+                        const response =
+                            await fetch(
+                                '/reservation',
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type':
+                                            'application/x-www-form-urlencoded'
+                                    },
+                                    body:
+                                        'action=cancel'
+                                        + '&reservationId='
+                                        + reservationId
+                                }
+                            );
+
+                        const message = await response.text();
+
+                        alert(message);
+
+                        // 重新加载我的预约
+                        const reservationResponse = await fetch( '/reservation' );
+                        const reservations = await reservationResponse.json();
+
+                        reservationCards.value =
+                            reservations.map(r => ({
+                                id: r.id,
+                                title: r.projectName,
+                                code: r.reservationCode,
+                                name: r.status
+                            }));
+
+                    } catch (e) {
+                        console.error( '取消预约失败', e );
+                        alert( '取消预约失败' );
+                    }
+                }
 
                 // 预约概览数据
                 const appointmentForm = ref([
@@ -162,6 +220,7 @@
                     adminTab,
                     serviceCategories,
                     reserveProject,
+                    cancelReservation,
                     reservationCards,
                     appointmentForm,
                     projectManagement
