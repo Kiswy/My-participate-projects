@@ -1,5 +1,5 @@
-import dao.ProjectDao;
-import entity.Project;
+import dao.ReservationDao;
+import entity.Reservation;
 
 import java.util.List;
 
@@ -7,23 +7,22 @@ public class Main {
 
     public static void main(String[] args) {
 
-        ProjectDao dao =
-                new ProjectDao();
+        ReservationDao dao =
+                new ReservationDao();
 
-        List<Project> list =
-                dao.getProjectsByCategory(1);
+        List<Reservation> list =
+                dao.getReservationsByUserId(
+                        1
+                );
 
-        for(Project project : list){
+        for (Reservation reservation : list) {
 
             System.out.println(
-                    project.getProjectName()
-                    + " | "
-                    + project.getLocation()
-                    + " | "
-                    + project.getAppointmentTime()
+                    reservation.getReservationCode()
             );
 
         }
 
     }
+
 }

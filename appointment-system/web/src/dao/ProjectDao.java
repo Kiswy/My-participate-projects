@@ -15,7 +15,7 @@ public class ProjectDao {
         List<Project> list = new ArrayList<>();
         String sql =
                 "SELECT * FROM projects " +
-                "WHERE category_id = ?";
+                        "WHERE category_id = ?";
 
         try {
             Connection conn = DBUtil.getConnection();
@@ -51,4 +51,61 @@ public class ProjectDao {
         return list;
     }
 
+    // 扣减剩余名额
+    public boolean decreaseRemainingCount(
+            Integer projectId) {
+        String sql =
+                "UPDATE projects " +
+                        "SET remaining_count = " +
+                        "remaining_count - 1 " +
+                        "WHERE id = ?";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, projectId);
+
+            int rows = ps.executeUpdate();
+
+            ps.close();
+            conn.close();
+
+            return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // 恢复剩余名额
+    public boolean increaseRemainingCount(
+            Integer projectId) {
+        String sql =
+                "UPDATE projects " +
+                        "SET remaining_count = " +
+                        "remaining_count + 1 " +
+                        "WHERE id = ?";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, projectId);
+
+            int rows = ps.executeUpdate();
+
+            ps.close();
+            conn.close();
+
+            return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

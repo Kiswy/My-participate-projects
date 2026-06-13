@@ -116,6 +116,26 @@
                     }
                 });
 
+                async function reserveProject(item) {
+                    try {
+                        const response = await fetch('/reservation', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'projectId=' + item.id
+                        });
+
+                        const message = await response.text();
+
+                        alert(message);
+
+                    } catch (e) {
+                        console.error('预约失败', e);
+                        alert('预约失败，请稍后重试');
+                    }
+                }
+
                 // 我的预约数据
                 const reservationCards = ref([
                     { id: 1, title: '图书馆·自习室', code: 'ZXS12LH', name: '李华' },
@@ -141,6 +161,7 @@
                     userTab,
                     adminTab,
                     serviceCategories,
+                    reserveProject,
                     reservationCards,
                     appointmentForm,
                     projectManagement

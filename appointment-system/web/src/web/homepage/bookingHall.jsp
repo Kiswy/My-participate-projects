@@ -15,7 +15,12 @@
                     <div class="meta">{{ item.location }}</div>
                     <div class="badge">剩余 {{ item.remaining }}/{{ item.capacity }}</div>
                 </div>
-                <button class="cards-btn">立即预约</button>
+                <button
+                    class="cards-btn"
+                    type="button"
+                    @click="reserveProject(item)">
+                    立即预约
+                </button>
             </div>
         </div>
     </div>

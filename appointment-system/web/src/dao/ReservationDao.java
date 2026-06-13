@@ -1,0 +1,153 @@
+package dao;
+
+import entity.Reservation;
+import util.DBUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ReservationDao {
+    // 查询是否存在预约
+    public boolean existsReservation(
+            Integer userId,
+            Integer projectId
+    ) {
+        String sql =
+                "SELECT * " +
+                        "FROM reservations " +
+                        "WHERE user_id = ? " +
+                        "AND project_id = ?";
+
+        try {
+
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+            ps.setInt(2, projectId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                rs.close();
+                ps.close();
+                conn.close();
+
+                return true;
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // 创建预约记录
+    public boolean createReservation(
+            Integer userId,
+            Integer projectId,
+            String reservationCode
+    ) {
+
+        String sql =
+                "INSERT INTO reservations " +
+                        "(reservation_code, user_id, project_id) " +
+                        "VALUES (?, ?, ?)";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, reservationCode);
+            ps.setInt(2, userId);
+            ps.setInt(3, projectId);
+
+            int rows = ps.executeUpdate();
+
+            ps.close();
+            conn.close();
+
+            return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // 查询用户的所有预约
+    public List<Reservation> getReservationsByUserId(
+            Integer userId) {
+        List<Reservation> list = new ArrayList<>();
+
+        String sql =
+                "SELECT * " +
+                        "FROM reservations " +
+                        "WHERE user_id = ?";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Reservation reservation = new Reservation();
+
+                reservation.setId(
+                        rs.getInt("id")
+                );
+
+                reservation.setReservationCode(
+                        rs.getString(
+                                "reservation_code"
+                        )
+                );
+
+                reservation.setUserId(
+                        rs.getInt("user_id")
+                );
+
+                reservation.setProjectId(
+                        rs.getInt("project_id")
+                );
+
+                reservation.setReserveTime(
+                        rs.getString(
+                                "reserve_time"
+                        )
+                );
+
+                reservation.setStatus(
+                        rs.getString(
+                                "status"
+                        )
+                );
+
+                list.add(
+                        reservation
+                );
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+}
