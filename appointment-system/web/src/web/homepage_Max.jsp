@@ -70,7 +70,7 @@
 
     <script>
         // 创建 Vue 应用
-        const { createApp, ref } = Vue;
+        const { createApp, ref, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -80,24 +80,41 @@
                 const adminTab = ref('ao');
 
                 // 预约大厅数据
-                const serviceCategories = ref([
-                    {
-                        id: 1,
-                        name: '图书馆',
-                        items: [
-                            { id: 1, title: '图书馆·自习室', desc: '安静学习空间', time: '4/10 08:00-22:00', location: '图书馆二层', remaining: 12, capacity: 30 },
-                            { id: 2, title: '图书馆·研讨室', desc: '小组讨论专用', time: '4/10 10:00-22:00', location: '图书馆三层', remaining: 3, capacity: 8 }
-                            ]
-                        },
-                    {
-                        id: 2,
-                        name: '讲座',
-                        items: [
-                            { id: 3, title: 'AI前沿讲座：大模型时代', desc: '张三教授主讲', time: '4/11 14:00-16:00', location: '图书馆三层报告厅', remaining: 45, capacity: 100 },
-                            { id: 4, title: '心理健康公开课', desc: '减压与情绪管理', time: '4/12 15:30-17:00', location: '学生活动中心小礼堂', remaining: 60, capacity: 80 }
-                        ]
+                const serviceCategories = ref([]);
+                onMounted(async () => {
+                    try {
+                        const categoryResponse = await fetch('/categories');
+                        const categories = await categoryResponse.json();
+                        const result = [];
+
+                        for (const category of categories) {
+                            const projectResponse =
+                                await fetch(
+                                    '/projects?categoryId='
+                                    + category.id
+                                );
+                            const projects = await projectResponse.json();
+
+                            result.push({
+                                id: category.id,
+                                name: category.categoryName,
+                                items: projects.map(project => ({
+                                    id: project.id,
+                                    title: project.projectName,
+                                    desc: project.description,
+                                    time: project.appointmentTime,
+                                    location: project.location,
+                                    remaining: project.remainingCount,
+                                    capacity: project.capacity
+                                }))
+                            });
+                        }
+
+                        serviceCategories.value = result;
+                    } catch (e) {
+                        console.error('加载预约大厅失败', e);
                     }
-                ]);
+                });
 
                 // 我的预约数据
                 const reservationCards = ref([
