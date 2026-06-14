@@ -98,20 +98,7 @@
 
                         serviceCategories.value = result;
 
-                        // ====================
-                        // 加载我的预约
-                        // ====================
-                        const reservationResponse = await fetch('/reservation');
-                        const reservations = await reservationResponse.json();
-
-                        reservationCards.value =
-                            reservations.map(r => ({
-                                id: r.id,
-                                title: r.projectName,
-                                code: r.reservationCode,
-                                name: r.status
-                            })
-                        );
+                        await loadReservations();
 
                     } catch (e) {
                         console.error('加载预约大厅失败', e);
@@ -131,6 +118,8 @@
                         const message = await response.text();
 
                         alert(message);
+
+                        await loadReservations();
 
                     } catch (e) {
                         console.error('预约失败', e);
@@ -161,22 +150,25 @@
 
                         alert(message);
 
-                        // 重新加载我的预约
-                        const reservationResponse = await fetch( '/reservation' );
-                        const reservations = await reservationResponse.json();
-
-                        reservationCards.value =
-                            reservations.map(r => ({
-                                id: r.id,
-                                title: r.projectName,
-                                code: r.reservationCode,
-                                name: r.status
-                            }));
+                        await loadReservations();
 
                     } catch (e) {
                         console.error( '取消预约失败', e );
                         alert( '取消预约失败' );
                     }
+                }
+
+                // 加载我的预约
+                async function loadReservations() {
+                    const reservationResponse = await fetch( '/reservation' );
+                    const reservations = await reservationResponse.json();
+
+                    reservationCards.value = reservations.map(r => ({
+                        id: r.id,
+                        title: r.projectName,
+                        code: r.reservationCode,
+                        name: r.status
+                    }));
                 }
 
                 return {

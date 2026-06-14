@@ -17,9 +17,10 @@ public class ReservationDao {
     ) {
         String sql =
                 "SELECT * " +
-                        "FROM reservations " +
-                        "WHERE user_id = ? " +
-                        "AND project_id = ?";
+                "FROM reservations " +
+                "WHERE user_id = ? " +
+                "AND project_id = ? " +
+                "AND status = '已预约'";
 
         try {
 
@@ -96,13 +97,15 @@ public class ReservationDao {
                         "FROM reservations r " +
                         "JOIN projects p " +
                         "ON r.project_id = p.id " +
-                        "WHERE r.user_id = ?";
+                        "WHERE r.user_id = ? " +
+                        "AND r.status = ?";
 
         try {
             Connection conn = DBUtil.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ps.setInt(1, userId);
+            ps.setString(2, "已预约");
 
             ResultSet rs = ps.executeQuery();
 
