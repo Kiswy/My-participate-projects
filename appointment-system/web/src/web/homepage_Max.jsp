@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
+    <!-- 当前登录用户信息 -->
     <h3 class="title">
         <span>
             欢迎您：${loginUser.username}
@@ -17,9 +18,10 @@
         </a>
     </h3>
 
+    <!-- Vue 应用挂载区域 -->
     <div id="app">
         <div class="app-container">
-            <!-- 头部导航 -->
+            <!-- 系统顶部导航和角色切换 -->
             <header class="main-header">
                 <div class="logo-area">
                     <h1>多功能预约系统</h1>
@@ -30,7 +32,7 @@
                 </div>
             </header>
 
-            <!-- 学生/教职工端内容 -->
+            <!-- 普通用户功能区域 -->
             <div id="userModeContent" class="dashboard" :style="{ display: currentRole === 'user' ? 'block' : 'none' }">
                 <div class="user-tab-nav">
                     <button class="tab-btn" :class="{ active: userTab === 'hall' }" @click="userTab = 'hall'">预约大厅</button>
@@ -48,19 +50,19 @@
                 </div>
             </div>
 
-            <!-- 后台管理端内容 -->
+            <!-- 管理员功能区域 -->
             <div id="adminModeContent" class="dashboard" :style="{ display: currentRole === 'admin' ? 'block' : 'none' }">
                 <div class="admin-tab-nav">
                     <button class="tab-btn" :class="{ active: adminTab === 'ao' }" @click="adminTab = 'ao'">预约概览</button>
                     <button class="tab-btn" :class="{ active: adminTab === 'pm' }" @click="adminTab = 'pm'">项目管理</button>
                 </div>
 
-                <!-- 预约概览页面 -->
+                <!-- 管理员预约总览 -->
                 <div id="aoPanel" :style="{ display: adminTab === 'ao' ? 'block' : 'none' }">
                     <jsp:include page="homepage/AO.jsp"/>
                 </div>
 
-                <!-- 项目管理页面 -->
+                <!-- 管理员项目管理 -->
                 <div id="pmPanel" :style="{ display: adminTab === 'pm' ? 'block' : 'none' }">
                     <jsp:include page="homepage/PM.jsp"/>
                 </div>
@@ -74,17 +76,33 @@
 
         createApp({
             setup() {
-                // 仅保留界面切换状态，无任何业务数据
+                // ====================
+                // 页面切换状态
+                // ====================
+
+                // 当前显示的角色页面
                 const currentRole = ref('user');
+
+                // 普通用户端当前页签
                 const userTab = ref('hall');
+
+                // 管理员端当前页签
                 const adminTab = ref('ao');
 
-                // 预约大厅数据
-                const serviceCategories = ref([]);
+                // ====================
+                // 页面业务数据
+                // ====================
 
-                // 我的预约数据
-                const reservationCards = ref([]);
+                const serviceCategories = ref([]); // 预约大厅数据
+                const reservationCards = ref([]);  // 我的预约数据
+                const appointmentForm = ref([]);   // 预约概览数据
+                const projectManagement = ref([]); // 项目管理数据
 
+                // ====================
+                // 页面初始化
+                // ====================
+
+                // 页面加载完成后，从后端读取项目和预约数据
                 onMounted(async () => {
                     try {
                         // ====================
@@ -94,6 +112,7 @@
                         const categories = await categoryResponse.json();
                         const result = [];
 
+                        // 依次查询每个分类下的项目
                         for (const category of categories) {
                             const projectResponse =
                                 await fetch(
@@ -102,6 +121,7 @@
                                 );
                             const projects = await projectResponse.json();
 
+                            // 将后端项目数据转换为页面需要的格式
                             result.push({
                                 id: category.id,
                                 name: category.categoryName,
@@ -119,15 +139,25 @@
 
                         serviceCategories.value = result;
 
+                        // 加载当前用户的预约记录
                         await loadReservations();
+
+                        // 加载管理员项目列表
+                        await loadProjectManagement();
 
                     } catch (e) {
                         console.error('加载预约大厅失败', e);
                     }
                 });
 
+                // ====================
+                // 预约项目
+                // ====================
+
+                // 向预约接口提交项目ID
                 async function reserveProject(item) {
                     try {
+                        // 提交预约请求
                         const response = await fetch('/reservation', {
                             method: 'POST',
                             headers: {
@@ -140,6 +170,7 @@
 
                         alert(message);
 
+                        // 预约操作完成后刷新“我的预约”
                         await loadReservations();
 
                     } catch (e) {
@@ -148,7 +179,11 @@
                     }
                 }
 
+                // ====================
                 // 取消预约
+                // ====================
+
+                // 根据预约ID提交取消请求
                 async function cancelReservation( reservationId ) {
                     try {
                         const response =
@@ -160,6 +195,7 @@
                                         'Content-Type':
                                             'application/x-www-form-urlencoded'
                                     },
+                                    // action=cancel 用于区分预约和取消操作
                                     body:
                                         'action=cancel'
                                         + '&reservationId='
@@ -171,6 +207,7 @@
 
                         alert(message);
 
+                        // 取消操作完成后刷新预约列表
                         await loadReservations();
 
                     } catch (e) {
@@ -179,11 +216,16 @@
                     }
                 }
 
+                // ====================
                 // 加载我的预约
+                // ====================
+
+                // 查询当前登录用户尚未取消的预约
                 async function loadReservations() {
                     const reservationResponse = await fetch( '/reservation' );
                     const reservations = await reservationResponse.json();
 
+                    // 将后端预约对象转换为预约卡片数据
                     reservationCards.value = reservations.map(r => ({
                         id: r.id,
                         title: r.projectName,
@@ -192,23 +234,82 @@
                     }));
                 }
 
-                // 预约概览数据
-                const appointmentForm = ref([
-                    { id: 1, code: 'ZXS12LH', title: '图书馆·自习室', name: '李华', email:'lihua@stu.edu', time:'2024-04-08 10:30'},
-                    { id: 2, code: 'JZ123LH', title: 'AI前沿讲座：大模型时代', name: '李华', email:'lihua@stu.edu', time:'2024-04-08 14:20' }
-                ]);
+                // ====================
+                // 加载项目管理
+                // ====================
 
-                // 项目管理数据
-                const projectManagement = ref([
-                    { id: 1, title: '图书馆·自习室', time: '4/10 08:00-22:00', num1: '30', num2: '12', desc: '安静学习空间' },
-                    { id: 2, title: '图书馆·研讨室', time: '4/10 10:00-22:00', num1: '8', num2: '3', desc: '小组讨论专用' },
-                    { id: 3, title: 'AI前沿讲座：大模型时代', time: '4/11 14:00-16:00', num1: '100', num2: '45', desc: '张三教授主讲' },
-                    { id: 4, title: '心理健康公开课', time: '4/12 15:30-17:00', num1: '80', num2: '60', desc: '减压与情绪管理' },
-                ]);
+                // 查询后台项目列表并转换为项目卡片数据
+                async function loadProjectManagement() {
+                    try {
+                        const response = await fetch('/admin/projects');
+                        const projects = await response.json();
 
+                        // 将后端项目对象转换为项目管理页面需要的格式
+                        projectManagement.value = projects.map(project => ({
+                            id: project.id,
+                            title: project.projectName,
+                            time: project.appointmentTime,
+                            num1: project.capacity,
+                            num2: project.remainingCount,
+                            desc: project.description,
+                            categoryName: project.categoryName
+                        }));
+                    } catch (e) {
+                        console.error('加载项目管理失败', e);
+                    }
+                }
+
+                // ====================
+                // 删除项目
+                // ====================
+
+                async function deleteProject(projectId) {
+                    const confirmed =
+                        confirm(
+                             '确定删除该项目吗？'
+                        );
+
+                    if (!confirmed) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(
+                            '/admin/projects?projectId='
+                            + projectId,
+                            {
+                                method: 'DELETE'
+                            }
+                        );
+
+                        const message = await response.text();
+
+                        if (!response.ok) {
+                            throw new Error(
+                                message || '删除项目失败'
+                            );
+                        }
+
+                        // 加载管理员项目列表
+                        await loadProjectManagement();
+                        
+                    } catch (e) {
+                        console.error('删除项目失败', e);
+                        alert('删除项目失败');
+                    }
+                }
+
+                // ====================
+                // 新增项目弹窗
+                // ====================
+
+                 // 控制新增项目弹窗是否显示
                  const showAddDialog = ref(false);
+
+                 // 防止保存过程中重复提交
                  const savingProject = ref(false);
 
+                // 创建一份空的项目表单数据
                 function createEmptyProject() {
                     return {
                         categoryId: '',
@@ -220,19 +321,28 @@
                     };
                 }
 
+                // 新增项目表单数据
                 const newProject = ref(createEmptyProject());
 
+                // 打开弹窗并清空上一次填写的内容
                 function openAddDialog() {
                     newProject.value = createEmptyProject();
                     showAddDialog.value = true;
                 }
 
+                // 关闭弹窗并重置表单
                 function closeAddDialog() {
                     showAddDialog.value = false;
                     newProject.value = createEmptyProject();
                 }
 
+                // ====================
+                // 提交新增项目
+                // ====================
+
+                // 校验提交状态并将项目数据发送到后端
                 async function submitNewProject() {
+                    // 保存过程中不再接受新的提交
                     if (savingProject.value) {
                         return;
                     }
@@ -240,6 +350,7 @@
                     savingProject.value = true;
 
                     try {
+                        // 将项目对象转换为表单格式的请求参数
                         const body = new URLSearchParams({
                             categoryId: String(newProject.value.categoryId),
                             projectName: newProject.value.projectName,
@@ -249,6 +360,7 @@
                             capacity: String(newProject.value.capacity)
                         });
 
+                        // 调用项目新增接口
                         const response = await fetch('/projects', {
                             method: 'POST',
                             headers: {
@@ -260,29 +372,26 @@
 
                         const message = await response.text();
 
+                        // HTTP状态码不是成功状态时，按新增失败处理
                         if (!response.ok) {
                             throw new Error(message || '新增项目失败');
                         }
 
-                        projectManagement.value.unshift({
-                            id: Date.now(),
-                            title: newProject.value.projectName,
-                            time: newProject.value.appointmentTime.replace('T', ' '),
-                            num1: newProject.value.capacity,
-                            num2: newProject.value.capacity,
-                            desc: newProject.value.description
-                        });
+                        // 加载管理员项目列表
+                        await loadProjectManagement();
 
                         alert(message);
                         closeAddDialog();
 
                     } catch (error) {
                         alert(error.message || '新增项目失败');
+                    // 无论成功或失败，都解除保存状态
                     } finally {
                         savingProject.value = false;
                     }
                 }
 
+                // 将页面状态、数据和操作方法暴露给JSP模板
                 return {
                     currentRole,
                     userTab,
@@ -293,6 +402,8 @@
                     reservationCards,
                     appointmentForm,
                     projectManagement,
+                    loadProjectManagement,
+                    deleteProject,
                     showAddDialog,
                     newProject,
                     openAddDialog,

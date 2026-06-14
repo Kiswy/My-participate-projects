@@ -18,7 +18,11 @@
                 <small>{{ pm.time }} | 容量：{{ pm.num1 }} 剩余：{{ pm.num2 }}</small>
                 <div>{{ pm.desc }}</div>
             </div>
-            <button class="btn-delete-project">删除</button>
+            <button
+                class="btn-delete-project"
+                @click="deleteProject(pm.id)">
+                删除
+            </button>
         </div>
     </div>
     <!-- 新增项目弹窗 -->

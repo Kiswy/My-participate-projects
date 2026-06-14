@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter("/homepage_Max.jsp")
+@WebFilter(
+        {"/homepage_Max.jsp",
+        "/admin/*"})
 public class AdminFilter implements Filter {
 
     @Override

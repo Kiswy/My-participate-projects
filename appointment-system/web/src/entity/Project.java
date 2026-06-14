@@ -3,6 +3,7 @@ package entity;
 public class Project {
     private Integer id;
     private Integer categoryId;
+    private String categoryName;
     private String projectName;
     private String description;
     private String location;
@@ -25,6 +26,10 @@ public class Project {
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
+
+    public String getCategoryName() { return categoryName; }
+
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
     public String getProjectName() {
         return projectName;

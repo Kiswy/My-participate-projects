@@ -17,10 +17,10 @@ public class ReservationDao {
     ) {
         String sql =
                 "SELECT * " +
-                "FROM reservations " +
-                "WHERE user_id = ? " +
-                "AND project_id = ? " +
-                "AND status = '已预约'";
+                        "FROM reservations " +
+                        "WHERE user_id = ? " +
+                        "AND project_id = ? " +
+                        "AND status = '已预约'";
 
         try {
 
@@ -240,6 +240,43 @@ public class ReservationDao {
             conn.close();
 
             return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // 检查项目是否存在有效预约
+    public boolean existsActiveReservation(
+            Integer projectId
+    ) {
+        String sql =
+                "SELECT * " +
+                "FROM reservations " +
+                "WHERE project_id = ? " +
+                "AND status = '已预约'";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, projectId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                rs.close();
+                ps.close();
+                conn.close();
+
+                return true;
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
 
         } catch (Exception e) {
             e.printStackTrace();
