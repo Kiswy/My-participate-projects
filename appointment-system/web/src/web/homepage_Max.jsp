@@ -111,6 +111,9 @@
                         // 加载当前用户的预约记录
                         await loadReservations();
 
+                        // 加载管理员预约总览
+                        await loadAppointmentOverview();
+
                         // 加载管理员项目列表
                         await loadProjectManagement();
 
@@ -173,6 +176,9 @@
                         // 预约操作完成后刷新“我的预约”
                         await loadReservations();
 
+                        // 加载管理员预约总览
+                        await loadAppointmentOverview();
+
                     } catch (e) {
                         console.error('预约失败', e);
                         alert('预约失败，请稍后重试');
@@ -209,6 +215,9 @@
 
                         // 取消操作完成后刷新预约列表
                         await loadReservations();
+
+                        // 加载管理员预约总览
+                        await loadAppointmentOverview();
 
                     } catch (e) {
                         console.error( '取消预约失败', e );
@@ -299,6 +308,30 @@
                     } catch (e) {
                         console.error('删除项目失败', e);
                         alert('删除项目失败');
+                    }
+                }
+
+                // ====================
+                // 加载预约总览
+                // ====================
+
+                async function loadAppointmentOverview() {
+                    try {
+                        const response = await fetch('/admin/reservations');
+                        const reservations = await response.json();
+
+                        appointmentForm.value = reservations.map(r => ({
+                            id: r.id,
+                            code: r.reservationCode,
+                            title: r.projectName,
+                            name: r.username,
+                            email: r.phone,
+                            time: r.reserveTime,
+                            status: r.status
+                        }));
+
+                    } catch (e) {
+                        console.error('加载预约总览失败', e);
                     }
                 }
 
@@ -407,6 +440,7 @@
                     cancelReservation,
                     reservationCards,
                     appointmentForm,
+                    loadAppointmentOverview,
                     projectManagement,
                     loadProjectManagement,
                     deleteProject,

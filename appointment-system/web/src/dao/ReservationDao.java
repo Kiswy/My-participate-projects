@@ -254,9 +254,9 @@ public class ReservationDao {
     ) {
         String sql =
                 "SELECT * " +
-                "FROM reservations " +
-                "WHERE project_id = ? " +
-                "AND status = '已预约'";
+                        "FROM reservations " +
+                        "WHERE project_id = ? " +
+                        "AND status = '已预约'";
 
         try {
             Connection conn = DBUtil.getConnection();
@@ -283,5 +283,52 @@ public class ReservationDao {
         }
 
         return false;
+    }
+
+    // 查询全部预约（管理员预约总览）
+    public List<Reservation> getAllReservations() {
+        List<Reservation> list = new ArrayList<>();
+        String sql =
+                "SELECT " +
+                "r.*, " +
+                "u.username, " +
+                "u.phone, " +
+                "p.project_name " +
+                "FROM reservations r " +
+                "JOIN users u " +
+                "ON r.user_id = u.id " +
+                "JOIN projects p " +
+                "ON r.project_id = p.id";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Reservation reservation = new Reservation();
+
+                reservation.setId(rs.getInt("id"));
+                reservation.setReservationCode(rs.getString("reservation_code"));
+                reservation.setUserId(rs.getInt("user_id"));
+                reservation.setProjectId(rs.getInt("project_id"));
+                reservation.setReserveTime(rs.getString("reserve_time"));
+                reservation.setStatus(rs.getString("status"));
+                reservation.setUsername(rs.getString("username"));
+                reservation.setPhone(rs.getString("phone"));
+                reservation.setProjectName(rs.getString("project_name"));
+
+                list.add(reservation);
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

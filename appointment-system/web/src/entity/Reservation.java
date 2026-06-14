@@ -2,6 +2,8 @@ package entity;
 
 public class Reservation {
     private Integer id;
+    private String username;
+    private String phone;
     private Integer userId;
     private Integer projectId;
     private String projectName;
@@ -25,6 +27,14 @@ public class Reservation {
         this.userId = userId;
     }
 
+    public String getUsername() { return username; }
+
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPhone() { return phone; }
+
+    public void setPhone(String phone) { this.phone = phone; }
+
     public Integer getProjectId() {
         return projectId;
     }
@@ -33,9 +43,13 @@ public class Reservation {
         this.projectId = projectId;
     }
 
-    public String getProjectName() { return projectName; }
+    public String getProjectName() {
+        return projectName;
+    }
 
-    public void setProjectName(String projectName) { this.projectName = projectName; }
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
 
     public String getReservationCode() {
         return reservationCode;

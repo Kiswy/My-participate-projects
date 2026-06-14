@@ -2,8 +2,16 @@
 <!-- 预约概览页面 - 纯静态界面 -->
 <div>
     <div class="view-header">
-        <h2>预约总览 <button class="refresh-btn">刷新</button></h2>
+        <h2>
+            预约总览
+            <button
+                class="refresh-btn"
+                @click="loadAppointmentOverview">
+                刷新
+            </button>
+        </h2>
     </div>
+    
     <table class="data-table">
         <thead>
             <tr>
@@ -22,7 +30,7 @@
                 <td>{{ ap.name }}</td>
                 <td>{{ ap.email }}</td>
                 <td>{{ ap.time }}</td>
-                <td>已预约</td>
+                <td>{{ ap.status }}</td>
             </tr>
         </tbody>
     </table>
