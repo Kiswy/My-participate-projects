@@ -216,3 +216,144 @@ body {
     background: #9ca3af;
     font-size: 12px;
     }
+.project-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dialog-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+}
+
+.project-dialog-card {
+    width: 520px;
+    max-width: 100%;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background: #f5f5f5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dialog-header h3 {
+    color: #1e3c5c;
+    font-size: 22px;
+}
+
+.dialog-close {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.project-dialog-card hr {
+    margin: 14px 0 20px;
+    border: none;
+    border-top: 1px solid #d3d3d3;
+}
+
+.project-form-group {
+    margin-bottom: 16px;
+}
+
+.project-form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #374151;
+    font-weight: 600;
+}
+
+.project-form-group input, .project-form-group select, .project-form-group textarea {
+    width: 100%;
+    border: 1px solid #d3d3d3;
+    padding: 0 16px;
+    background: white;
+    font-size: 15px;
+    outline: none;
+}
+
+.project-form-group input, .project-form-group select {
+    height: 40px;
+    border-radius: 999px;
+}
+
+.project-form-group textarea {
+    padding: 12px 16px;
+    border-radius: 16px;
+    resize: vertical;
+}
+
+.project-form-group input:focus, .project-form-group select:focus, .project-form-group textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.project-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.dialog-cancel-btn, .dialog-save-btn {
+    min-width: 100px;
+    height: 38px;
+    border-radius: 999px;
+    padding: 0 20px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.dialog-cancel-btn {
+    border: 1px solid #d3d3d3;
+    background: white;
+    color: #4b5563;
+}
+
+.dialog-save-btn {
+    border: 1px solid #888;
+    background: #d3d3d3;
+    color: #222;
+}
+
+.dialog-save-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    ox-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.dialog-save-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
+@media (max-width: 600px) {
+     .dialog-mask {
+        padding: 12px;
+    }
+
+    .project-dialog-card {
+        padding: 16px;
+    }
+}

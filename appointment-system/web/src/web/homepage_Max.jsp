@@ -206,6 +206,83 @@
                     { id: 4, title: '心理健康公开课', time: '4/12 15:30-17:00', num1: '80', num2: '60', desc: '减压与情绪管理' },
                 ]);
 
+                 const showAddDialog = ref(false);
+                 const savingProject = ref(false);
+
+                function createEmptyProject() {
+                    return {
+                        categoryId: '',
+                        projectName: '',
+                        description: '',
+                        location: '',
+                        appointmentTime: '',
+                        capacity: ''
+                    };
+                }
+
+                const newProject = ref(createEmptyProject());
+
+                function openAddDialog() {
+                    newProject.value = createEmptyProject();
+                    showAddDialog.value = true;
+                }
+
+                function closeAddDialog() {
+                    showAddDialog.value = false;
+                    newProject.value = createEmptyProject();
+                }
+
+                async function submitNewProject() {
+                    if (savingProject.value) {
+                        return;
+                    }
+
+                    savingProject.value = true;
+
+                    try {
+                        const body = new URLSearchParams({
+                            categoryId: String(newProject.value.categoryId),
+                            projectName: newProject.value.projectName,
+                            description: newProject.value.description,
+                            location: newProject.value.location,
+                            appointmentTime: newProject.value.appointmentTime,
+                            capacity: String(newProject.value.capacity)
+                        });
+
+                        const response = await fetch('/projects', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type':
+                                    'application/x-www-form-urlencoded;charset=UTF-8'
+                            },
+                            body: body.toString()
+                        });
+
+                        const message = await response.text();
+
+                        if (!response.ok) {
+                            throw new Error(message || '新增项目失败');
+                        }
+
+                        projectManagement.value.unshift({
+                            id: Date.now(),
+                            title: newProject.value.projectName,
+                            time: newProject.value.appointmentTime.replace('T', ' '),
+                            num1: newProject.value.capacity,
+                            num2: newProject.value.capacity,
+                            desc: newProject.value.description
+                        });
+
+                        alert(message);
+                        closeAddDialog();
+
+                    } catch (error) {
+                        alert(error.message || '新增项目失败');
+                    } finally {
+                        savingProject.value = false;
+                    }
+                }
+
                 return {
                     currentRole,
                     userTab,
@@ -215,7 +292,13 @@
                     cancelReservation,
                     reservationCards,
                     appointmentForm,
-                    projectManagement
+                    projectManagement,
+                    showAddDialog,
+                    newProject,
+                    openAddDialog,
+                    closeAddDialog,
+                    submitNewProject,
+                    savingProject
                 };
             }
         }).mount('#app');

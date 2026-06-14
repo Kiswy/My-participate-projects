@@ -108,4 +108,43 @@ public class ProjectDao {
 
         return false;
     }
+
+    // 新增项目
+    public boolean addProject(Project project) {
+        String sql =
+                "INSERT INTO projects " +
+                "(category_id, " +
+                "project_name, " +
+                "description, " +
+                "location, " +
+                "appointment_time, " +
+                "capacity, " +
+                "remaining_count) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, project.getCategoryId());
+            ps.setString(2, project.getProjectName());
+            ps.setString(3, project.getDescription());
+            ps.setString(4, project.getLocation());
+            ps.setString(5, project.getAppointmentTime());
+            ps.setInt(6, project.getCapacity());
+            ps.setInt(7, project.getCapacity());
+
+            int rows = ps.executeUpdate();
+
+            ps.close();
+            conn.close();
+
+            return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

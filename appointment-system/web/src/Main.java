@@ -1,23 +1,46 @@
 import dao.ReservationDao;
-import entity.Reservation;
+import dao.ProjectDao;
+import entity.Project;
 
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-        ReservationDao dao =
-                new ReservationDao();
+        ProjectDao dao =
+                new ProjectDao();
 
-        List<Reservation> list =
-                dao.getReservationsByUserId(1);
+        Project project =
+                new Project();
 
-boolean result =
-        dao.cancelReservation(
-                1
+        project.setCategoryId(1);
+
+        project.setProjectName(
+                "羽毛球场"
         );
 
-System.out.println(result);
+        project.setDescription(
+                "羽批圣地"
+        );
+
+        project.setLocation(
+                "体育馆一楼"
+        );
+
+        project.setAppointmentTime(
+                "周日上午"
+        );
+
+        project.setCapacity(6);
+
+        boolean result =
+                dao.addProject(
+                        project
+                );
+
+        System.out.println(
+                result
+        );
 
     }
 
