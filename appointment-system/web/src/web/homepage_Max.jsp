@@ -105,39 +105,8 @@
                 // 页面加载完成后，从后端读取项目和预约数据
                 onMounted(async () => {
                     try {
-                        // ====================
                         // 加载预约大厅
-                        // ====================
-                        const categoryResponse = await fetch('/categories');
-                        const categories = await categoryResponse.json();
-                        const result = [];
-
-                        // 依次查询每个分类下的项目
-                        for (const category of categories) {
-                            const projectResponse =
-                                await fetch(
-                                    '/projects?categoryId='
-                                    + category.id
-                                );
-                            const projects = await projectResponse.json();
-
-                            // 将后端项目数据转换为页面需要的格式
-                            result.push({
-                                id: category.id,
-                                name: category.categoryName,
-                                items: projects.map(project => ({
-                                    id: project.id,
-                                    title: project.projectName,
-                                    desc: project.description,
-                                    time: project.appointmentTime,
-                                    location: project.location,
-                                    remaining: project.remainingCount,
-                                    capacity: project.capacity
-                                }))
-                            });
-                        }
-
-                        serviceCategories.value = result;
+                        await loadServiceCategories();
 
                         // 加载当前用户的预约记录
                         await loadReservations();
@@ -149,6 +118,37 @@
                         console.error('加载预约大厅失败', e);
                     }
                 });
+
+                // ====================
+                // 加载预约大厅
+                // ====================
+
+                async function loadServiceCategories() {
+                    const categoryResponse = await fetch('/categories');
+                    const categories = await categoryResponse.json();
+                    const result = [];
+
+                    for (const category of categories) {
+                        const projectResponse = await fetch('/projects?categoryId=' + category.id);
+                        const projects = await projectResponse.json();
+
+                        result.push({
+                            id: category.id,
+                            name: category.categoryName,
+                            items: projects.map(project => ({
+                                id: project.id,
+                                title: project.projectName,
+                                desc: project.description,
+                                time: project.appointmentTime,
+                                location: project.location,
+                                remaining: project.remainingCount,
+                                capacity: project.capacity
+                            }))
+                        });
+                    }
+
+                    serviceCategories.value = result;
+                }
 
                 // ====================
                 // 预约项目
@@ -292,7 +292,10 @@
 
                         // 加载管理员项目列表
                         await loadProjectManagement();
-                        
+
+                        // 加载预约大厅
+                        await loadServiceCategories();
+
                     } catch (e) {
                         console.error('删除项目失败', e);
                         alert('删除项目失败');
@@ -379,6 +382,9 @@
 
                         // 加载管理员项目列表
                         await loadProjectManagement();
+
+                        // 加载预约大厅
+                        await loadServiceCategories();
 
                         alert(message);
                         closeAddDialog();

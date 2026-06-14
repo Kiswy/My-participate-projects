@@ -104,8 +104,9 @@
                     <label for="appointmentTime">预约时间</label>
                     <input
                         id="appointmentTime"
-                        v-model="newProject.appointmentTime"
-                        type="datetime-local"
+                        v-model.trim="newProject.appointmentTime"
+                        type="text"
+                        placeholder="例如：08:00-22:00"
                         required>
                 </div>
 
