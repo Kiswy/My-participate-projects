@@ -46,7 +46,23 @@ public class AuthFilter implements Filter {
         }
 
         if (loginUser == null) {
-            resp.sendRedirect("index.jsp");
+            if (uri.startsWith(
+                    req.getContextPath() + "/api/"
+            )) {
+                resp.setStatus(
+                        HttpServletResponse.SC_UNAUTHORIZED
+                );
+                resp.setContentType(
+                        "application/json;charset=UTF-8"
+                );
+                resp.getWriter().write(
+                        "{\"success\":false,\"message\":\"未登录\"}"
+                );
+            } else {
+                resp.sendRedirect(
+                        req.getContextPath() + "/index.jsp"
+                );
+            }
 
             return;
         }

@@ -34,15 +34,19 @@
             android:layout_height="wrap_content"
             android:background="@drawable/edittext_border"
             android:layout_marginBottom="15dp"
-            android:hint="用户名"/>
+            android:paddingHorizontal="10dp"
+            android:hint="用户名"
+            android:id="@+id/username"/>
 
         <EditText
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:background="@drawable/edittext_border"
             android:layout_marginBottom="15dp"
+            android:paddingHorizontal="10dp"
             android:inputType="textPassword"
-            android:hint="密码"/>
+            android:hint="密码"
+            android:id="@+id/password"/>
 
         <TextView
             android:layout_width="250dp"
@@ -50,6 +54,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/edittext_border"
             android:backgroundTint="#0000EE"
+            android:id="@+id/login"
             android:text="登录"
             android:textColor="#FFFFFF"
             android:gravity="center"/>

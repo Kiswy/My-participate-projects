@@ -11,7 +11,7 @@
             </button>
         </h2>
     </div>
-    
+
     <table class="data-table">
         <thead>
             <tr>

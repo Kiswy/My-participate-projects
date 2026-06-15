@@ -35,7 +35,9 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:background="@drawable/edittext_border"
+            android:paddingHorizontal="10dp"
             android:layout_marginBottom="15dp"
+            android:id="@+id/username"
             android:hint="用户名"/>
 
         <EditText
@@ -43,8 +45,19 @@
             android:layout_height="wrap_content"
             android:background="@drawable/edittext_border"
             android:layout_marginBottom="15dp"
+            android:paddingHorizontal="10dp"
             android:inputType="textPassword"
+            android:id="@+id/password"
             android:hint="密码"/>
+
+        <EditText
+            android:id="@+id/phone"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:background="@drawable/edittext_border"
+            android:layout_marginBottom="15dp"
+            android:hint="手机号"/>
 
         <TextView
             android:layout_width="250dp"
@@ -52,6 +65,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/edittext_border"
             android:backgroundTint="#0000EE"
+            android:id="@+id/register"
             android:text="创建"
             android:textColor="#FFFFFF"
             android:gravity="center"/>

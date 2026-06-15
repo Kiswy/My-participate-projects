@@ -93,10 +93,13 @@ public class ReservationDao {
         String sql =
                 "SELECT " +
                         "r.*, " +
-                        "p.project_name " +
+                        "p.project_name, " +
+                        "u.username " +
                         "FROM reservations r " +
                         "JOIN projects p " +
                         "ON r.project_id = p.id " +
+                        "JOIN users u " +
+                        "ON r.user_id = u.id " +
                         "WHERE r.user_id = ? " +
                         "AND r.status = ?";
 
@@ -130,6 +133,10 @@ public class ReservationDao {
 
                 reservation.setProjectName(
                         rs.getString("project_name")
+                );
+
+                reservation.setUsername(
+                        rs.getString("username")
                 );
 
                 reservation.setReserveTime(
