@@ -35,6 +35,7 @@ public class MyReservationAdapter extends RecyclerView.Adapter<MyReservationAdap
         notifyDataSetChanged();
     }
 
+    // 加载卡片样式
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(
@@ -55,6 +56,7 @@ public class MyReservationAdapter extends RecyclerView.Adapter<MyReservationAdap
         return new ViewHolder(view);
     }
 
+    // 填充卡片数据
     @Override
     public void onBindViewHolder(
             @NonNull ViewHolder holder,
@@ -81,6 +83,7 @@ public class MyReservationAdapter extends RecyclerView.Adapter<MyReservationAdap
         );
     }
 
+    // 获取数据条数
     @Override
     public int getItemCount() {
         return dataList == null ? 0 : dataList.size();

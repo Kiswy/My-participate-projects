@@ -43,9 +43,7 @@ public class BookingHallFragment extends Fragment {
         adapter = new BookingHallAdapter();
         adapter.setOnBookClickListener(
                 item -> {
-                    reserveProject(
-                            item.getId()
-                    );
+                    reserveProject(item.getId());
                 }
         );
 
@@ -93,29 +91,24 @@ public class BookingHallFragment extends Fragment {
 
                 List<BookingItem> list = new ArrayList<>();
 
-                for (int i = 0;
-                     i < jsonArray.length();
-                     i++) {
+                for (int i = 0; i < jsonArray.length(); i++) {
 
                     JSONObject obj = jsonArray.getJSONObject(i);
 
-                    BookingItem item =
-                            new BookingItem(
-                                    obj.getInt("id"),
-                                    obj.getString("projectName"),
-                                    obj.getString("location"),
-                                    obj.getString("appointmentTime"),
-                                    obj.getInt("remainingCount"),
-                                    obj.getInt("capacity")
+                    BookingItem item = new BookingItem(
+                            obj.getInt("id"),
+                            obj.getString("projectName"),
+                            obj.getString("location"),
+                            obj.getString("appointmentTime"),
+                            obj.getInt("remainingCount"),
+                            obj.getInt("capacity")
                             );
 
                     list.add(item);
                 }
 
                 requireActivity().runOnUiThread(() -> {
-                            adapter.setDataList(
-                                    list
-                            );
+                            adapter.setDataList(list);
                         });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -132,10 +125,7 @@ public class BookingHallFragment extends Fragment {
 
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
-                conn.setRequestProperty(
-                        "Content-Type",
-                        "application/x-www-form-urlencoded"
-                );
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
                 String data = "projectId=" + projectId;
 

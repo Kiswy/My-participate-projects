@@ -29,6 +29,7 @@ public class BookingHallAdapter extends RecyclerView.Adapter<BookingHallAdapter.
         notifyDataSetChanged();
     }
 
+    // 加载卡片样式
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(
@@ -48,6 +49,7 @@ public class BookingHallAdapter extends RecyclerView.Adapter<BookingHallAdapter.
         return new ViewHolder(view);
     }
 
+    // 填充数据
     @Override
     public void onBindViewHolder(
             @NonNull ViewHolder holder,
@@ -66,6 +68,7 @@ public class BookingHallAdapter extends RecyclerView.Adapter<BookingHallAdapter.
         });
     }
 
+    // 获取数据条数
     @Override
     public int getItemCount() {
         return dataList == null ? 0 : dataList.size();
