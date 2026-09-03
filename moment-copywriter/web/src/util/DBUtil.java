@@ -1,0 +1,40 @@
+package util;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class DBUtil {
+    private static final String DRIVER =
+            "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+
+    private static final String DEFAULT_URL =
+            "jdbc:sqlserver://localhost\\SQL2022;"
+                    + "databaseName=MomentCopywriter;"
+                    + "encrypt=true;"
+                    + "trustServerCertificate=true";
+
+    private static final String URL =
+            System.getenv().getOrDefault("MOMENT_DB_URL", DEFAULT_URL);
+
+    private static final String USER =
+            System.getenv().getOrDefault("MOMENT_DB_USER", "sa");
+
+    private static final String PASSWORD =
+            System.getenv("MOMENT_DB_PASSWORD");
+
+    public static Connection getConnection() throws Exception {
+        if (isBlank(PASSWORD)) {
+            throw new IllegalStateException(
+                    "Environment variable MOMENT_DB_PASSWORD is required"
+            );
+        }
+
+        Class.forName(DRIVER);
+
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+}
