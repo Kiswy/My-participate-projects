@@ -1,16 +1,16 @@
 package servlet;
 
 import dao.CopywritingRecordDao;
-import util.JsonUtil;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/api/copywriting/delete")
-public class DeleteHistoryServlet extends BaseApiServlet {
+@WebServlet("/api/copywriting/clear-history")
+public class ClearHistoryServlet extends BaseApiServlet {
     @Override
     protected void doPost(
             HttpServletRequest request,
@@ -31,27 +31,15 @@ public class DeleteHistoryServlet extends BaseApiServlet {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
-        Map<String, Object> body = readBody(request);
-        int id = JsonUtil.getInt(request, body, "id", 0);
         int userId = requireUserId(request, response);
-
         if (userId <= 0) {
             return;
         }
 
-        if (id <= 0) {
-            writeFail(response, HttpServletResponse.SC_BAD_REQUEST,
-                    "id is required");
-            return;
-        }
+        int deletedCount = new CopywritingRecordDao().deleteAllByUserId(userId);
 
-        boolean deleted = new CopywritingRecordDao().deleteById(id, userId);
-        if (!deleted) {
-            writeFail(response, HttpServletResponse.SC_NOT_FOUND,
-                    "Record not found");
-            return;
-        }
-
-        writeSuccess(response, null);
+        Map<String, Object> data = new HashMap<>();
+        data.put("deletedCount", deletedCount);
+        writeSuccess(response, data);
     }
 }

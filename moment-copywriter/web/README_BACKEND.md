@@ -69,44 +69,56 @@ Logout:
 POST /api/logout
 ```
 
+Current user:
+
+```text
+GET /api/current-user
+```
+
 Generate copywriting:
 
 ```text
 POST /api/copywriting/generate
-userId=1&scene=coffee with friends&mood=relaxed&style=literary&keywords=weekend
+scene=coffee with friends&mood=relaxed&style=literary&keywords=weekend
 ```
 
 History:
 
 ```text
-GET /api/copywriting/history?userId=1
+GET /api/copywriting/history
 ```
 
 Favorites:
 
 ```text
-GET /api/copywriting/favorites?userId=1
+GET /api/copywriting/favorites
 ```
 
 Add favorite:
 
 ```text
 POST /api/copywriting/favorite/add
-userId=1&recordId=3
+recordId=3
 ```
 
 Remove favorite:
 
 ```text
 POST /api/copywriting/favorite/delete
-userId=1&recordId=3
+recordId=3
 ```
 
 Delete history:
 
 ```text
 POST /api/copywriting/delete
-userId=1&id=3
+id=3
+```
+
+Clear history:
+
+```text
+POST /api/copywriting/clear-history
 ```
 
 All APIs return JSON in this shape:

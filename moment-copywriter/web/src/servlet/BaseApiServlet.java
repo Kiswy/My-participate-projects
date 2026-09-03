@@ -4,6 +4,7 @@ import entity.User;
 import util.CorsUtil;
 import util.JsonUtil;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +18,7 @@ public abstract class BaseApiServlet extends HttpServlet {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
-        CorsUtil.allowCors(response);
+        CorsUtil.allowCors(request, response);
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
@@ -28,26 +29,50 @@ public abstract class BaseApiServlet extends HttpServlet {
 
     protected void writeSuccess(HttpServletResponse response, Object data)
             throws IOException {
-        CorsUtil.allowCors(response);
         JsonUtil.writeJson(response, JsonUtil.success(data));
     }
 
     protected void writeFail(HttpServletResponse response, int status, String message)
             throws IOException {
-        CorsUtil.allowCors(response);
         response.setStatus(status);
         JsonUtil.writeJson(response, JsonUtil.fail(message));
     }
 
-    protected int currentUserId(HttpServletRequest request, Map<String, Object> body) {
+    @Override
+    protected void service(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
+        CorsUtil.allowCors(request, response);
+        super.service(request, response);
+    }
+
+    protected User currentUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             Object loginUser = session.getAttribute("loginUser");
             if (loginUser instanceof User) {
-                return ((User) loginUser).getId();
+                return (User) loginUser;
             }
         }
 
-        return JsonUtil.getInt(request, body, "userId", 0);
+        return null;
+    }
+
+    protected int currentUserId(HttpServletRequest request) {
+        User user = currentUser(request);
+        return user == null ? 0 : user.getId();
+    }
+
+    protected int requireUserId(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        int userId = currentUserId(request);
+        if (userId <= 0) {
+            writeFail(response, HttpServletResponse.SC_UNAUTHORIZED, "请先登录");
+        }
+
+        return userId;
     }
 }

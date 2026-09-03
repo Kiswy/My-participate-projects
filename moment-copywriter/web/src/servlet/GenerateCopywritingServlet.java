@@ -24,6 +24,11 @@ public class GenerateCopywritingServlet extends BaseApiServlet {
         String mood = JsonUtil.getString(request, body, "mood");
         String style = JsonUtil.getString(request, body, "style");
         String keywords = JsonUtil.getString(request, body, "keywords");
+        int userId = requireUserId(request, response);
+
+        if (userId <= 0) {
+            return;
+        }
 
         if (scene == null) {
             writeFail(response, HttpServletResponse.SC_BAD_REQUEST,
@@ -48,7 +53,7 @@ public class GenerateCopywritingServlet extends BaseApiServlet {
         }
 
         CopywritingRecord record = new CopywritingRecord();
-        record.setUserId(currentUserId(request, body));
+        record.setUserId(userId);
         record.setScene(scene);
         record.setMood(mood);
         record.setStyle(style);

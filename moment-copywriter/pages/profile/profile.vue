@@ -79,7 +79,7 @@
 <script>
 	import AppTabbar from '../../components/app-tabbar/app-tabbar.vue'
 	import { post } from '../../common/request.js'
-	import { clearUser, getUser, ensureLogin } from '../../common/auth.js'
+	import { clearUser, getUser, ensureLogin, loadCurrentUser } from '../../common/auth.js'
 
 	export default {
 		components: {
@@ -92,6 +92,11 @@
 		},
 		onShow() {
 			this.user = getUser()
+			loadCurrentUser().then(user => {
+				this.user = user
+			}).catch(() => {
+				this.user = null
+			})
 		},
 		methods: {
 			goFavorites() {
@@ -117,9 +122,27 @@
 					return
 				}
 
-				uni.showToast({
-					title: '清空历史接口待后端数据库实现',
-					icon: 'none'
+				uni.showModal({
+					title: '清空历史',
+					content: '确定清空全部历史记录吗？',
+					success: res => {
+						if (!res.confirm) {
+							return
+						}
+
+						post('/api/copywriting/clear-history').then(data => {
+							const deletedCount = data && data.deletedCount ? data.deletedCount : 0
+							uni.showToast({
+								title: '已清空' + deletedCount + '条记录',
+								icon: 'none'
+							})
+						}).catch(message => {
+							uni.showToast({
+								title: String(message),
+								icon: 'none'
+							})
+						})
+					}
 				})
 			},
 			goLogin() {

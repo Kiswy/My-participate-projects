@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_TIMEOUT } from './config.js'
-import { getUserId } from './auth.js'
+import { clearUser, getSessionCookie, saveSessionCookie } from './auth.js'
 
 function normalizeUrl(path) {
 	const baseUrl = API_BASE_URL.replace(/\/$/, '')
@@ -7,15 +7,8 @@ function normalizeUrl(path) {
 	return baseUrl + apiPath
 }
 
-function buildData(data, auth) {
-	const payload = Object.assign({}, data || {})
-	const userId = getUserId()
-
-	if (auth !== false && userId > 0 && !payload.userId) {
-		payload.userId = userId
-	}
-
-	return payload
+function buildData(data) {
+	return Object.assign({}, data || {})
 }
 
 function buildHeader(method, header) {
@@ -23,9 +16,16 @@ function buildHeader(method, header) {
 		? 'application/json'
 		: 'application/x-www-form-urlencoded'
 
-	return Object.assign({
+	const result = Object.assign({
 		'content-type': contentType
 	}, header || {})
+
+	const sessionCookie = getSessionCookie()
+	if (sessionCookie && !result.Cookie) {
+		result.Cookie = sessionCookie
+	}
+
+	return result
 }
 
 export function request(path, options) {
@@ -36,16 +36,23 @@ export function request(path, options) {
 		uni.request({
 			url: normalizeUrl(path),
 			method,
+			withCredentials: true,
 			timeout: requestOptions.timeout || API_TIMEOUT,
-			data: buildData(requestOptions.data, requestOptions.auth),
+			data: buildData(requestOptions.data),
 			header: buildHeader(method, requestOptions.header),
 			success(res) {
+				saveSessionCookie(res.header)
+
 				const body = res.data || {}
 				const ok = res.statusCode >= 200 && res.statusCode < 300
 
 				if (ok && body.success !== false) {
 					resolve(Object.prototype.hasOwnProperty.call(body, 'data') ? body.data : body)
 					return
+				}
+
+				if (res.statusCode === 401) {
+					clearUser()
 				}
 
 				reject(body.message || '请求失败')

@@ -1,13 +1,22 @@
 <script>
+	import { loadCurrentUser } from './common/auth.js'
+
 	export default {
 		onLaunch: function() {
 			console.log('Moment Copywriter Launch')
+			this.loadLoginUser()
 		},
 		onShow: function() {
 			console.log('Moment Copywriter Show')
+			this.loadLoginUser()
 		},
 		onHide: function() {
 			console.log('Moment Copywriter Hide')
+		},
+		methods: {
+			loadLoginUser() {
+				loadCurrentUser().catch(() => {})
+			}
 		}
 	}
 </script>

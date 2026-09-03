@@ -32,10 +32,8 @@ public class FavoritesServlet extends BaseApiServlet {
             HttpServletResponse response,
             Map<String, Object> body
     ) throws IOException {
-        int userId = currentUserId(request, body);
+        int userId = requireUserId(request, response);
         if (userId <= 0) {
-            writeFail(response, HttpServletResponse.SC_BAD_REQUEST,
-                    "userId is required");
             return;
         }
 

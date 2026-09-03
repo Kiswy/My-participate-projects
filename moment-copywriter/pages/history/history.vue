@@ -55,7 +55,7 @@
 <script>
 	import AppTabbar from '../../components/app-tabbar/app-tabbar.vue'
 	import { get, post } from '../../common/request.js'
-	import { ensureLogin } from '../../common/auth.js'
+	import { ensureLogin, isLoggedIn, loadCurrentUser } from '../../common/auth.js'
 	import { getFavorites, isFavorite, toggleFavorite } from '../../common/favorites.js'
 
 	export default {
@@ -87,19 +87,40 @@
 			this.onlyFavorites = options && options.favorite === '1'
 		},
 		onShow() {
-			if (!ensureLogin()) {
-				return
-			}
-			this.loadRecords(false)
+			this.requireLogin().then(loggedIn => {
+				if (loggedIn) {
+					this.loadRecords(false)
+				}
+			})
 		},
 		onPullDownRefresh() {
-			if (!ensureLogin()) {
+			this.requireLogin().then(loggedIn => {
+				if (loggedIn) {
+					this.loadRecords(true)
+					return
+				}
+
 				uni.stopPullDownRefresh()
-				return
-			}
-			this.loadRecords(true)
+			})
 		},
 		methods: {
+			requireLogin() {
+				if (isLoggedIn()) {
+					return Promise.resolve(true)
+				}
+
+				return loadCurrentUser().then(user => {
+					if (user) {
+						return true
+					}
+
+					ensureLogin()
+					return false
+				}).catch(() => {
+					ensureLogin()
+					return false
+				})
+			},
 			refreshFavorites() {
 				return getFavorites().then(data => {
 					this.favorites = Array.isArray(data) ? data : []

@@ -33,12 +33,16 @@ public class DeleteFavoriteServlet extends BaseApiServlet {
             HttpServletResponse response
     ) throws IOException {
         Map<String, Object> body = readBody(request);
-        int userId = currentUserId(request, body);
+        int userId = requireUserId(request, response);
         int recordId = recordId(request, body);
 
-        if (userId <= 0 || recordId <= 0) {
+        if (userId <= 0) {
+            return;
+        }
+
+        if (recordId <= 0) {
             writeFail(response, HttpServletResponse.SC_BAD_REQUEST,
-                    "userId and recordId are required");
+                    "recordId is required");
             return;
         }
 

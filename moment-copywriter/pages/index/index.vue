@@ -79,7 +79,7 @@
 <script>
 	import AppTabbar from '../../components/app-tabbar/app-tabbar.vue'
 	import { post } from '../../common/request.js'
-	import { ensureLogin } from '../../common/auth.js'
+	import { ensureLogin, isLoggedIn, loadCurrentUser } from '../../common/auth.js'
 	import { isFavorite, toggleFavorite } from '../../common/favorites.js'
 
 	export default {
@@ -148,10 +148,32 @@
 				this.category = item.name
 			},
 			generateCopywriting() {
-				if (!ensureLogin()) {
-					return
+				this.requireLogin().then(loggedIn => {
+					if (!loggedIn) {
+						return
+					}
+
+					this.submitGenerateCopywriting()
+				})
+			},
+			requireLogin() {
+				if (isLoggedIn()) {
+					return Promise.resolve(true)
 				}
 
+				return loadCurrentUser().then(user => {
+					if (user) {
+						return true
+					}
+
+					ensureLogin()
+					return false
+				}).catch(() => {
+					ensureLogin()
+					return false
+				})
+			},
+			submitGenerateCopywriting() {
 				if (!this.scene.trim()) {
 					uni.showToast({
 						title: '请输入文案需求',

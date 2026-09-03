@@ -116,6 +116,40 @@ public class CopywritingRecordDao {
         return false;
     }
 
+    public int deleteAllByUserId(int userId) {
+        if (userId <= 0) {
+            return 0;
+        }
+
+        String deleteFavoriteSql = "DELETE FROM favorites WHERE user_id = ?";
+        String deleteRecordSql = "DELETE FROM copywriting_records WHERE user_id = ?";
+
+        try (Connection conn = DBUtil.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (
+                    PreparedStatement deleteFavorite = conn.prepareStatement(deleteFavoriteSql);
+                    PreparedStatement deleteRecord = conn.prepareStatement(deleteRecordSql)
+            ) {
+                deleteFavorite.setInt(1, userId);
+                deleteFavorite.executeUpdate();
+
+                deleteRecord.setInt(1, userId);
+                int deletedCount = deleteRecord.executeUpdate();
+
+                conn.commit();
+                return deletedCount;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
     private CopywritingRecord mapRecord(ResultSet rs) throws Exception {
         CopywritingRecord record = new CopywritingRecord();
         record.setId(rs.getInt("id"));
