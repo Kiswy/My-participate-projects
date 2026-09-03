@@ -52,16 +52,21 @@ public class CopywritingRecordDao {
 
     public List<CopywritingRecord> listByUserId(int userId) {
         List<CopywritingRecord> list = new ArrayList<>();
-        String sql = "SELECT TOP 50 id, user_id, scene, mood, style, keywords, "
-                + "generated_content, ai_model, create_time "
-                + "FROM copywriting_records WHERE user_id = ? "
-                + "ORDER BY create_time DESC, id DESC";
+        String sql = "SELECT TOP 50 r.id, r.user_id, r.scene, r.mood, r.style, r.keywords, "
+                + "r.generated_content, r.ai_model, r.create_time, "
+                + "CASE WHEN f.id IS NULL THEN 0 ELSE 1 END AS favorite, "
+                + "f.create_time AS favorite_time "
+                + "FROM copywriting_records r "
+                + "LEFT JOIN favorites f ON f.record_id = r.id AND f.user_id = ? "
+                + "WHERE r.user_id = ? "
+                + "ORDER BY r.create_time DESC, r.id DESC";
 
         try (
                 Connection conn = DBUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)
         ) {
             ps.setInt(1, userId);
+            ps.setInt(2, userId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -80,15 +85,30 @@ public class CopywritingRecordDao {
             return false;
         }
 
-        String sql = "DELETE FROM copywriting_records WHERE id = ? AND user_id = ?";
+        String deleteFavoriteSql = "DELETE FROM favorites WHERE record_id = ? AND user_id = ?";
+        String deleteRecordSql = "DELETE FROM copywriting_records WHERE id = ? AND user_id = ?";
 
-        try (
-                Connection conn = DBUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
-            ps.setInt(1, id);
-            ps.setInt(2, userId);
-            return ps.executeUpdate() > 0;
+        try (Connection conn = DBUtil.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (
+                    PreparedStatement deleteFavorite = conn.prepareStatement(deleteFavoriteSql);
+                    PreparedStatement deleteRecord = conn.prepareStatement(deleteRecordSql)
+            ) {
+                deleteFavorite.setInt(1, id);
+                deleteFavorite.setInt(2, userId);
+                deleteFavorite.executeUpdate();
+
+                deleteRecord.setInt(1, id);
+                deleteRecord.setInt(2, userId);
+                boolean deleted = deleteRecord.executeUpdate() > 0;
+
+                conn.commit();
+                return deleted;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,6 +127,8 @@ public class CopywritingRecordDao {
         record.setGeneratedContent(rs.getString("generated_content"));
         record.setAiModel(rs.getString("ai_model"));
         record.setCreateTime(rs.getString("create_time"));
+        record.setFavorite(rs.getInt("favorite") == 1);
+        record.setFavoriteTime(rs.getString("favorite_time"));
         return record;
     }
 }

@@ -10,6 +10,8 @@ public class CopywritingRecord {
     private String generatedContent;
     private String aiModel;
     private String createTime;
+    private boolean favorite;
+    private String favoriteTime;
 
     public CopywritingRecord() {
     }
@@ -84,5 +86,21 @@ public class CopywritingRecord {
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public String getFavoriteTime() {
+        return favoriteTime;
+    }
+
+    public void setFavoriteTime(String favoriteTime) {
+        this.favoriteTime = favoriteTime;
     }
 }

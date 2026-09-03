@@ -1,0 +1,51 @@
+package servlet;
+
+import dao.FavoriteDao;
+import util.JsonUtil;
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@WebServlet("/api/copywriting/favorite/add")
+public class AddFavoriteServlet extends BaseApiServlet {
+    @Override
+    protected void doPost(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        Map<String, Object> body = readBody(request);
+        int userId = currentUserId(request, body);
+        int recordId = recordId(request, body);
+
+        if (userId <= 0 || recordId <= 0) {
+            writeFail(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "userId and recordId are required");
+            return;
+        }
+
+        boolean success = new FavoriteDao().add(userId, recordId);
+        if (!success) {
+            writeFail(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Record not found");
+            return;
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("recordId", recordId);
+        data.put("favorite", true);
+        writeSuccess(response, data);
+    }
+
+    private int recordId(HttpServletRequest request, Map<String, Object> body) {
+        int id = JsonUtil.getInt(request, body, "recordId", 0);
+        if (id > 0) {
+            return id;
+        }
+
+        return JsonUtil.getInt(request, body, "id", 0);
+    }
+}

@@ -34,3 +34,23 @@ GO
 CREATE INDEX idx_copywriting_records_user_time
     ON copywriting_records(user_id, create_time DESC);
 GO
+
+CREATE TABLE favorites (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    record_id INT NOT NULL,
+    create_time DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT fk_favorites_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_favorites_record
+        FOREIGN KEY (record_id) REFERENCES copywriting_records(id)
+        ON DELETE CASCADE,
+    CONSTRAINT uq_favorites_user_record
+        UNIQUE (user_id, record_id)
+);
+GO
+
+CREATE INDEX idx_favorites_user_time
+    ON favorites(user_id, create_time DESC);
+GO

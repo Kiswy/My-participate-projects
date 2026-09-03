@@ -82,6 +82,26 @@ History:
 GET /api/copywriting/history?userId=1
 ```
 
+Favorites:
+
+```text
+GET /api/copywriting/favorites?userId=1
+```
+
+Add favorite:
+
+```text
+POST /api/copywriting/favorite/add
+userId=1&recordId=3
+```
+
+Remove favorite:
+
+```text
+POST /api/copywriting/favorite/delete
+userId=1&recordId=3
+```
+
 Delete history:
 
 ```text

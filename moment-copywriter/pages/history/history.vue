@@ -25,12 +25,13 @@
 				@tap="copyRecord(record)"
 			>
 				<view class="card-top">
-					<view
+					<button
 						class="card-icon"
 						:class="{ muted: !record.favorite }"
+						@tap.stop="toggleRecordFavorite(record)"
 					>
 						<text>{{ record.favorite ? '♥' : '♡' }}</text>
-					</view>
+					</button>
 					<view class="card-main">
 						<view class="card-title-row">
 							<text class="card-title">{{ record.style || '朋友圈文案' }}</text>
@@ -55,7 +56,7 @@
 	import AppTabbar from '../../components/app-tabbar/app-tabbar.vue'
 	import { get, post } from '../../common/request.js'
 	import { ensureLogin } from '../../common/auth.js'
-	import { getFavorites, isFavorite } from '../../common/favorites.js'
+	import { getFavorites, isFavorite, toggleFavorite } from '../../common/favorites.js'
 
 	export default {
 		components: {
@@ -161,6 +162,38 @@
 				uni.setClipboardData({
 					data: record.generatedContent
 				})
+			},
+			toggleRecordFavorite(record) {
+				toggleFavorite(record).then(favorite => {
+					this.applyFavoriteState(record, favorite)
+					uni.showToast({
+						title: favorite ? '已收藏' : '已取消',
+						icon: 'none'
+					})
+				}).catch(message => {
+					uni.showToast({
+						title: String(message),
+						icon: 'none'
+					})
+				})
+			},
+			applyFavoriteState(record, favorite) {
+				const id = record && record.id
+				if (!id) {
+					return
+				}
+
+				this.records.forEach(item => {
+					if (item.id === id) {
+						item.favorite = favorite
+					}
+				})
+
+				if (favorite) {
+					return
+				}
+
+				this.favorites = this.favorites.filter(item => item.id !== id)
 			},
 			deleteRecord(record) {
 				uni.showModal({
