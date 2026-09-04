@@ -22,7 +22,7 @@
 				v-for="record in displayRecords"
 				:key="record.uniqueKey"
 				class="history-card"
-				@tap="copyRecord(record)"
+				@tap="openDetail(record)"
 			>
 				<view class="card-top">
 					<button
@@ -34,16 +34,64 @@
 					</button>
 					<view class="card-main">
 						<view class="card-title-row">
-							<text class="card-title">{{ record.style || '朋友圈文案' }}</text>
+							<text class="card-title">{{ cardTitle(record) }}</text>
 							<text class="arrow">›</text>
 						</view>
-						<text class="card-preview">{{ record.generatedContent }}</text>
+						<text class="card-preview">{{ record.displayGeneratedContent }}</text>
 					</view>
 				</view>
 
 				<view class="card-bottom">
 					<text class="record-time">{{ formatTime(record.createTime || record.favoriteTime) }}</text>
 					<button class="delete-button" @tap.stop="deleteRecord(record)">删除</button>
+				</view>
+			</view>
+		</view>
+
+		<view v-if="detailRecord" class="detail-mask" @tap="closeDetail">
+			<view class="detail-panel" @tap.stop>
+				<view class="detail-header">
+					<text class="detail-title">文案详情</text>
+					<button class="detail-close" @tap.stop="closeDetail">×</button>
+				</view>
+
+				<scroll-view class="detail-body" scroll-y>
+					<view class="detail-section">
+						<text class="detail-label">生成要求</text>
+						<text class="detail-content">{{ detailRecord.displayScene || '无' }}</text>
+					</view>
+
+					<view class="detail-meta" v-if="detailRecord.displayMood || detailRecord.displayStyle || detailRecord.displayKeywords">
+						<view class="detail-field" v-if="detailRecord.displayMood">
+							<text class="detail-field-label">心情</text>
+							<text class="detail-field-value">{{ detailRecord.displayMood }}</text>
+						</view>
+						<view class="detail-field" v-if="detailRecord.displayStyle">
+							<text class="detail-field-label">风格</text>
+							<text class="detail-field-value">{{ detailRecord.displayStyle }}</text>
+						</view>
+						<view class="detail-field" v-if="detailRecord.displayKeywords">
+							<text class="detail-field-label">关键词</text>
+							<text class="detail-field-value">{{ detailRecord.displayKeywords }}</text>
+						</view>
+					</view>
+
+					<view class="detail-section">
+						<text class="detail-label">生成内容</text>
+						<text class="detail-content">{{ detailRecord.displayGeneratedContent || '无' }}</text>
+					</view>
+				</scroll-view>
+
+				<view class="detail-actions">
+					<button class="detail-action" @tap.stop="copyDetail">复制</button>
+					<button
+						class="detail-action favorite"
+						:class="{ active: detailRecord.favorite }"
+						@tap.stop="toggleDetailFavorite"
+					>
+						{{ detailRecord.favorite ? '取消收藏' : '收藏' }}
+					</button>
+					<button class="detail-action danger" @tap.stop="deleteDetailRecord">删除</button>
 				</view>
 			</view>
 		</view>
@@ -67,7 +115,8 @@
 				records: [],
 				favorites: [],
 				onlyFavorites: false,
-				loading: false
+				loading: false,
+				detailRecord: null
 			}
 		},
 		computed: {
@@ -78,7 +127,12 @@
 					const uniqueKey = (record.id ? 'id:' + record.id : 'local:' + index)
 					return Object.assign({}, record, {
 						favorite,
-						uniqueKey
+						uniqueKey,
+						displayScene: this.displayText(record.scene),
+						displayMood: this.displayText(record.mood),
+						displayStyle: this.displayText(record.style),
+						displayKeywords: this.displayText(record.keywords),
+						displayGeneratedContent: this.displayText(record.generatedContent)
 					})
 				})
 			}
@@ -175,18 +229,96 @@
 					})
 				})
 			},
+			cardTitle(record) {
+				if (!record) {
+					return '朋友圈文案'
+				}
+
+				return record.displayScene || record.displayKeywords || record.displayStyle || '朋友圈文案'
+			},
+			displayText(value) {
+				if (value === null || value === undefined) {
+					return ''
+				}
+
+				const text = String(value)
+				if (!this.looksGarbled(text)) {
+					return text
+				}
+
+				try {
+					const decoded = this.decodeMojibake(text)
+					return decoded && !this.looksGarbled(decoded) ? decoded : text
+				} catch (e) {
+					return text
+				}
+			},
+			decodeMojibake(text) {
+				let encoded = ''
+
+				for (let i = 0; i < text.length; i++) {
+					const code = text.charCodeAt(i)
+					if (code > 255) {
+						encoded += encodeURIComponent(text.charAt(i))
+						continue
+					}
+
+					const hex = code.toString(16)
+					encoded += '%' + (hex.length === 1 ? '0' + hex : hex)
+				}
+
+				return decodeURIComponent(encoded)
+			},
+			looksGarbled(text) {
+				return /[ÃÂäåæçèéïâ]/.test(text)
+			},
+			openDetail(record) {
+				if (!record) {
+					return
+				}
+
+				this.detailRecord = Object.assign({}, record)
+			},
+			closeDetail() {
+				this.detailRecord = null
+			},
 			copyRecord(record) {
-				if (!record || !record.generatedContent) {
+				const content = record && (record.displayGeneratedContent || record.generatedContent)
+				if (!content) {
 					return
 				}
 
 				uni.setClipboardData({
-					data: record.generatedContent
+					data: content
 				})
+			},
+			copyDetail() {
+				this.copyRecord(this.detailRecord)
 			},
 			toggleRecordFavorite(record) {
 				toggleFavorite(record).then(favorite => {
 					this.applyFavoriteState(record, favorite)
+					uni.showToast({
+						title: favorite ? '已收藏' : '已取消',
+						icon: 'none'
+					})
+				}).catch(message => {
+					uni.showToast({
+						title: String(message),
+						icon: 'none'
+					})
+				})
+			},
+			toggleDetailFavorite() {
+				if (!this.detailRecord) {
+					return
+				}
+
+				toggleFavorite(this.detailRecord).then(favorite => {
+					this.applyFavoriteState(this.detailRecord, favorite)
+					this.detailRecord = Object.assign({}, this.detailRecord, {
+						favorite
+					})
 					uni.showToast({
 						title: favorite ? '已收藏' : '已取消',
 						icon: 'none'
@@ -210,11 +342,24 @@
 					}
 				})
 
+				if (this.detailRecord && this.detailRecord.id === id) {
+					this.detailRecord = Object.assign({}, this.detailRecord, {
+						favorite
+					})
+				}
+
 				if (favorite) {
 					return
 				}
 
 				this.favorites = this.favorites.filter(item => item.id !== id)
+			},
+			deleteDetailRecord() {
+				if (!this.detailRecord) {
+					return
+				}
+
+				this.deleteRecord(this.detailRecord)
 			},
 			deleteRecord(record) {
 				uni.showModal({
@@ -236,6 +381,9 @@
 						post('/api/copywriting/delete', {
 							id: record.id
 						}).then(() => {
+							if (this.detailRecord && this.detailRecord.id === record.id) {
+								this.closeDetail()
+							}
 							this.loadRecords(false)
 						}).catch(message => {
 							uni.showToast({
@@ -333,9 +481,14 @@
 	}
 
 	.card-title {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
 		color: #0A0A0A;
 		font-size: 34rpx;
 		font-weight: 800;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.arrow {
@@ -372,5 +525,142 @@
 		padding: 0 12rpx;
 		color: #222222;
 		font-size: 26rpx;
+	}
+
+	.detail-mask {
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		z-index: 40;
+		display: flex;
+		align-items: flex-end;
+		background: rgba(0, 0, 0, 0.38);
+	}
+
+	.detail-panel {
+		position: relative;
+		width: 100%;
+		max-height: 84vh;
+		padding: 34rpx 36rpx calc(34rpx + env(safe-area-inset-bottom));
+		border-radius: 24rpx 24rpx 0 0;
+		background: #FFFFFF;
+		box-sizing: border-box;
+	}
+
+	.detail-header {
+		display: flex;
+		align-items: center;
+		padding-right: 82rpx;
+		margin-bottom: 24rpx;
+	}
+
+	.detail-title {
+		color: #0A0A0A;
+		font-size: 38rpx;
+		font-weight: 800;
+	}
+
+	.detail-close {
+		position: absolute;
+		top: 28rpx;
+		right: 32rpx;
+		width: 58rpx;
+		height: 58rpx;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		background: #F2F4F7;
+		color: #333333;
+		font-size: 38rpx;
+		line-height: 1;
+	}
+
+	.detail-body {
+		height: 56vh;
+	}
+
+	.detail-section {
+		margin-bottom: 30rpx;
+	}
+
+	.detail-label {
+		display: block;
+		margin-bottom: 14rpx;
+		color: #555555;
+		font-size: 26rpx;
+	}
+
+	.detail-content {
+		display: block;
+		color: #111111;
+		font-size: 30rpx;
+		line-height: 1.55;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	.detail-meta {
+		margin-bottom: 30rpx;
+		padding: 22rpx 24rpx;
+		border-radius: 12rpx;
+		background: #F7FAFF;
+	}
+
+	.detail-field {
+		margin-bottom: 14rpx;
+	}
+
+	.detail-field:last-child {
+		margin-bottom: 0;
+	}
+
+	.detail-field-label {
+		margin-right: 18rpx;
+		color: #666666;
+		font-size: 26rpx;
+	}
+
+	.detail-field-value {
+		color: #111111;
+		font-size: 28rpx;
+	}
+
+	.detail-actions {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-top: 24rpx;
+	}
+
+	.detail-action {
+		width: 30%;
+		height: 74rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 10rpx;
+		background: #F2F4F7;
+		color: #222222;
+		font-size: 28rpx;
+	}
+
+	.detail-action.favorite {
+		background: #EAF3FF;
+		color: #0069E8;
+	}
+
+	.detail-action.favorite.active {
+		background: #0878F7;
+		color: #FFFFFF;
+	}
+
+	.detail-action.danger {
+		background: #FFF3F2;
+		color: #D94B3D;
 	}
 </style>

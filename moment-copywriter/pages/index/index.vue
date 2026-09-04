@@ -418,8 +418,9 @@
 	.example-item {
 		width: 100%;
 		min-height: 76rpx;
-		padding: 18rpx 0;
+		padding: 18rpx 24rpx;
 		display: block;
+		box-sizing: border-box;
 		border-bottom: 1rpx solid #F0F1F4;
 		color: #555555;
 		font-size: 28rpx;

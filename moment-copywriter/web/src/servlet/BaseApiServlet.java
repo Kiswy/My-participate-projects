@@ -43,6 +43,7 @@ public abstract class BaseApiServlet extends HttpServlet {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         CorsUtil.allowCors(request, response);
         super.service(request, response);
     }

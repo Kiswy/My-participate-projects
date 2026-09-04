@@ -8,7 +8,7 @@
 				<view class="avatar-body"></view>
 			</view>
 			<view class="user-info" v-if="user">
-				<text class="username">{{ user.username }}</text>
+				<text class="username">{{ displayUsername }}</text>
 				<text class="login-state">已登录</text>
 			</view>
 			<view class="user-info" v-else>
@@ -88,6 +88,11 @@
 		data() {
 			return {
 				user: null
+			}
+		},
+		computed: {
+			displayUsername() {
+				return this.user ? this.displayText(this.user.username) : ''
 			}
 		},
 		onShow() {
@@ -177,6 +182,42 @@
 				uni.reLaunch({
 					url: '/pages/index/index'
 				})
+			},
+			displayText(value) {
+				if (value === null || value === undefined) {
+					return ''
+				}
+
+				const text = String(value)
+				if (!this.looksGarbled(text)) {
+					return text
+				}
+
+				try {
+					const decoded = this.decodeMojibake(text)
+					return decoded && !this.looksGarbled(decoded) ? decoded : text
+				} catch (e) {
+					return text
+				}
+			},
+			decodeMojibake(text) {
+				let encoded = ''
+
+				for (let i = 0; i < text.length; i++) {
+					const code = text.charCodeAt(i)
+					if (code > 255) {
+						encoded += encodeURIComponent(text.charAt(i))
+						continue
+					}
+
+					const hex = code.toString(16)
+					encoded += '%' + (hex.length === 1 ? '0' + hex : hex)
+				}
+
+				return decodeURIComponent(encoded)
+			},
+			looksGarbled(text) {
+				return /[ÃÂäåæçèéïâ]/.test(text)
 			}
 		}
 	}
@@ -239,10 +280,13 @@
 
 	.username {
 		display: block;
+		overflow: hidden;
 		color: #050505;
 		font-size: 42rpx;
 		font-weight: 800;
 		line-height: 1.2;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.login-state {
