@@ -20,11 +20,17 @@ public class AiClient {
     private static final String API_URL =
             System.getenv().getOrDefault(
                     "AI_API_URL",
-                    "https://api.openai.com/v1/chat/completions"
+                    "https://api.deepseek.com/chat/completions"
             );
 
-    private static final String API_KEY = System.getenv("AI_API_KEY");
-    private static final String MODEL = System.getenv("AI_MODEL");
+    private static final String API_KEY =
+            System.getenv("AI_API_KEY");
+
+    private static final String MODEL =
+            System.getenv().getOrDefault(
+                    "AI_MODEL",
+                    "deepseek-v4-flash"
+            );
 
     public String getModel() {
         return MODEL;
